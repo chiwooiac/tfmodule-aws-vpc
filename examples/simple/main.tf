@@ -3,7 +3,6 @@ module "ctx" {
   context = {
     aws_profile  = "terran"
     region       = "ap-northeast-2"
-    region_alias = "an2"
     project      = "stdecs"
     environment  = "Development"
     owner        = "owener@demonow.io"
