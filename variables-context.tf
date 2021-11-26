@@ -18,3 +18,9 @@ variable "context" {
     })
   })
 }
+
+variable "enable_pri_domain" {
+  description = "Create a Route53 private domain record for the VPC."
+  type        = bool
+  default     = false
+}
