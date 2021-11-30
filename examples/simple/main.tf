@@ -1,3 +1,7 @@
+data "aws_availability_zones" "this" {
+  state = "available"
+}
+
 module "ctx" {
   source  = "git::https://github.com/chiwooiac/tfmodule-context.git"
   context = {
@@ -20,7 +24,7 @@ module "vpc" {
 
   cidr = "${var.vpc_cidr}.0.0/16"
 
-  azs = ["apne2-az1", "apne2-az2"]
+  azs = [data.aws_availability_zones.this.zone_ids[0], data.aws_availability_zones.this.zone_ids[1]]
   public_subnets       = ["${var.vpc_cidr}.11.0/24", "${var.vpc_cidr}.12.0/24"]
   public_subnet_names  = ["pub-a1", "pub-b1"]
   public_subnet_suffix = "pub"
