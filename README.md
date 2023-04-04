@@ -52,39 +52,11 @@ aws ec2 describe-vpcs --filters 'Name=tag:Name,Values=mydemo*'
         <th>Name</th>
         <th>Description</th>
         <th>Type</th>
-        <th>Default</th>
+        <th>Example</th>
         <th>Required</th>
     </tr>
 </thead>
 <tbody>
-    <tr>
-        <td>region</td>
-        <td>AWS 리전 약어를 입력 합니다.</td>
-        <td>string</td>
-        <td>an2</td>
-        <td>yes</td>
-    </tr>
-    <tr>
-        <td>env</td>
-        <td>develop, stage, production 과 같은 런-타임 환경 약어를 입력 합니다.</td>
-        <td>string</td>
-        <td>null</td>
-        <td>yes</td>
-    </tr>
-    <tr>
-        <td>team</td>
-        <td>클라우드 관리 주체인 팀 이름을 입력 합니다.</td>
-        <td>string</td>
-        <td>null</td>
-        <td>yes</td>
-    </tr>
-    <tr>
-        <td>owner</td>
-        <td>프로젝트 Owner를 입력합니다. 이메일, 어카운트 또는 관리 부서가 될 수 있습니다.</td>
-        <td>string</td>
-        <td>null</td>
-        <td>yes</td>
-    </tr>
     <tr>
         <td>create_vpc</td>
         <td>프로비저닝을 통해 정의된 VPC를 생성 합니다.</td>
@@ -94,23 +66,23 @@ aws ec2 describe-vpcs --filters 'Name=tag:Name,Values=mydemo*'
     </tr>
     <tr>
         <td>name</td>
-        <td>VPC 대표 이름을 설정 합니다. 대게 서비스명 또는 프로젝트명이 올 수 있습니다.</td>
+        <td>VPC 이름을 설정 합니다.</td>
         <td>string</td>
         <td>null</td>
-        <td>yes</td>
+        <td>no</td>
     </tr>
     <tr>
         <td>cidr</td>
         <td>VPC 네트워크의 CIDR 네트워크 대역을 정의 합니다.</td>
         <td>string</td>
-        <td>null</td>
+        <td>(ex: "172.76.0.0/16")</td>
         <td>yes</td>
     </tr>
     <tr>
         <td>azs</td>
         <td>availability zones ID를 입력 합니다.</td>
         <td>list</td>
-        <td>null</td>
+        <td>[]</td>
         <td>yes</td>
     </tr>
     <tr>
