@@ -163,6 +163,26 @@ output "intra_subnets_ipv6_cidr_blocks" {
   value       = aws_subnet.intra.*.ipv6_cidr_block
 }
 
+output "eks_subnets" {
+  description = "List of IDs of EKS subnets"
+  value       = aws_subnet.eks.*.id
+}
+
+output "eks_subnet_arns" {
+  description = "List of ARNs of EKS subnets"
+  value       = aws_subnet.eks.*.arn
+}
+
+output "eks_subnets_cidr_blocks" {
+  description = "List of cidr_blocks of EKS subnets"
+  value       = aws_subnet.eks.*.cidr_block
+}
+
+output "eks_subnets_ipv6_cidr_blocks" {
+  description = "List of IPv6 cidr_blocks of EKS subnets in an IPv6 enabled VPC"
+  value       = aws_subnet.eks.*.ipv6_cidr_block
+}
+
 output "public_route_table_ids" {
   description = "List of IDs of public route tables"
   value       = aws_route_table.public.*.id
@@ -181,6 +201,11 @@ output "database_route_table_ids" {
 output "intra_route_table_ids" {
   description = "List of IDs of intra route tables"
   value       = aws_route_table.intra.*.id
+}
+
+output "eks_route_table_ids" {
+  description = "List of IDs of EKS route tables"
+  value       = aws_route_table.eks.*.id
 }
 
 output "public_internet_gateway_route_id" {
@@ -285,11 +310,13 @@ output "this_customer_gateway" {
 
 output "vgw_id" {
   description = "The ID of the VPN Gateway"
-  value = concat(
+  value       = concat(
     aws_vpn_gateway.this.*.id,
     aws_vpn_gateway_attachment.this.*.vpn_gateway_id,
     [""],
-  )[0]
+  )[
+  0
+  ]
 }
 
 output "vgw_arn" {
