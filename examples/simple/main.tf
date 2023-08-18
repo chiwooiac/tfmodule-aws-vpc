@@ -19,9 +19,9 @@ module "ctx" {
 module "vpc" {
   source               = "../../"
   context              = module.ctx.context
-  cidr                 = "172.76.0.0/16"
+  cidr                 = "10.76.0.0/16"
   azs                  = [data.aws_availability_zones.this.zone_ids[0], data.aws_availability_zones.this.zone_ids[1]]
-  public_subnets       = ["172.76.11.0/24", "172.76.12.0/24"]
+  public_subnets       = ["10.76.11.0/24", "10.76.12.0/24"]
   public_subnet_names  = ["pub-a1", "pub-b1"]
   public_subnet_suffix = "pub"
   public_subnet_tags   = {
@@ -32,9 +32,9 @@ module "vpc" {
   single_nat_gateway = true
 
   private_subnets = [
-    "172.76.31.0/24", "172.76.32.0/24",
-    "172.76.41.0/24", "172.76.42.0/24",
-    "172.76.51.0/24", "172.76.52.0/24",
+    "10.76.31.0/24", "10.76.32.0/24",
+    "10.76.41.0/24", "10.76.42.0/24",
+    "10.76.51.0/24", "10.76.52.0/24",
   ]
 
   private_subnet_names = [
@@ -48,7 +48,7 @@ module "vpc" {
     "kubernetes.io/role/internal-elb"                     = 1
   }
 
-  database_subnets       = ["172.76.91.0/24", "172.76.92.0/24"]
+  database_subnets       = ["10.76.91.0/24", "10.76.92.0/24"]
   database_subnet_names  = ["data-a1", "data-c1"]
   database_subnet_suffix = "data"
   database_subnet_tags   = { "grp:Name" = "${module.ctx.name_prefix}-data" }
