@@ -332,6 +332,25 @@ resource "aws_route_table" "intra" {
 
 }
 
+
+#################
+# EKS routes
+#################
+resource "aws_route_table" "eks" {
+  count = var.create_vpc && length(var.eks_subnets) > 0 ? 1 : 0
+
+  vpc_id = local.vpc_id
+
+  tags = merge(
+    local.tags,
+    var.eks_route_table_tags,
+    {
+      Name = var.single_nat_gateway ? "${local.name_prefix}-${var.intra_subnet_suffix}-rt" : format("%s-%s-rt", local.name_prefix, element(var.intra_subnet_names, count.index) )
+    },
+  )
+
+}
+
 ################
 # Public subnet
 ################
@@ -391,6 +410,26 @@ resource "aws_subnet" "database" {
     local.tags,
     var.database_subnet_tags,
     { Name = format("%s-%s-sn", local.name_prefix, element(var.database_subnet_names, count.index)) },
+  )
+}
+
+##################
+# EKS subnet
+##################
+resource "aws_subnet" "eks" {
+  count = var.create_vpc && length(var.eks_subnets) > 0 ? length(var.eks_subnets) : 0
+
+  vpc_id                          = local.vpc_id
+  cidr_block                      = var.eks_subnets[count.index]
+  availability_zone_id            = length(regexall("^[a-z]{2}-", element(var.azs, count.index))) == 0 ? element(var.azs, count.index) : null
+  assign_ipv6_address_on_creation = var.eks_subnet_assign_ipv6_address_on_creation == null ? var.assign_ipv6_address_on_creation : var.eks_subnet_assign_ipv6_address_on_creation
+
+  ipv6_cidr_block = var.enable_ipv6 && length(var.eks_subnet_ipv6_prefixes) > 0 ? cidrsubnet(aws_vpc.this[0].ipv6_cidr_block, 8, var.eks_subnet_ipv6_prefixes[count.index]) : null
+
+  tags = merge(
+    local.tags,
+    var.eks_subnet_tags,
+    { Name = format("%s-%s-sn", local.name_prefix, element(var.eks_subnet_names, count.index)) },
   )
 }
 
@@ -676,6 +715,54 @@ resource "aws_network_acl_rule" "database_outbound" {
   icmp_type   = lookup(var.database_outbound_acl_rules[count.index], "icmp_type", null)
   protocol    = var.database_outbound_acl_rules[count.index]["protocol"]
   cidr_block  = lookup(var.database_outbound_acl_rules[count.index], "cidr_block", null)
+}
+
+########################
+# EKS Network ACLs
+########################
+resource "aws_network_acl" "eks" {
+  count = var.create_vpc && var.eks_dedicated_network_acl && length(var.eks_subnets) > 0 ? 1 : 0
+
+  vpc_id     = element(concat(aws_vpc.this.*.id, [""]), 0)
+  subnet_ids = aws_subnet.eks.*.id
+
+  tags = merge(
+    local.tags,
+    var.eks_acl_tags,
+    { Name = format("%s-%s-nacl", local.name_prefix, var.eks_subnet_suffix) },
+  )
+}
+
+resource "aws_network_acl_rule" "eks_inbound" {
+  count = var.create_vpc && var.eks_dedicated_network_acl && length(var.eks_subnets) > 0 ? length(var.eks_inbound_acl_rules) : 0
+
+  network_acl_id = aws_network_acl.database[0].id
+
+  egress      = false
+  rule_number = var.eks_inbound_acl_rules[count.index]["rule_number"]
+  rule_action = var.eks_inbound_acl_rules[count.index]["rule_action"]
+  from_port   = lookup(var.eks_inbound_acl_rules[count.index], "from_port", null)
+  to_port     = lookup(var.eks_inbound_acl_rules[count.index], "to_port", null)
+  icmp_code   = lookup(var.eks_inbound_acl_rules[count.index], "icmp_code", null)
+  icmp_type   = lookup(var.eks_inbound_acl_rules[count.index], "icmp_type", null)
+  protocol    = var.eks_inbound_acl_rules[count.index]["protocol"]
+  cidr_block  = lookup(var.eks_inbound_acl_rules[count.index], "cidr_block", null)
+}
+
+resource "aws_network_acl_rule" "eks_outbound" {
+  count = var.create_vpc && var.eks_dedicated_network_acl && length(var.eks_subnets) > 0 ? length(var.eks_outbound_acl_rules) : 0
+
+  network_acl_id = aws_network_acl.database[0].id
+
+  egress      = true
+  rule_number = var.eks_outbound_acl_rules[count.index]["rule_number"]
+  rule_action = var.eks_outbound_acl_rules[count.index]["rule_action"]
+  from_port   = lookup(var.eks_outbound_acl_rules[count.index], "from_port", null)
+  to_port     = lookup(var.eks_outbound_acl_rules[count.index], "to_port", null)
+  icmp_code   = lookup(var.eks_outbound_acl_rules[count.index], "icmp_code", null)
+  icmp_type   = lookup(var.eks_outbound_acl_rules[count.index], "icmp_type", null)
+  protocol    = var.eks_outbound_acl_rules[count.index]["protocol"]
+  cidr_block  = lookup(var.eks_outbound_acl_rules[count.index], "cidr_block", null)
 }
 
 ##############

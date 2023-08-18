@@ -58,6 +58,12 @@ variable "intra_subnet_ipv6_prefixes" {
   default     = []
 }
 
+variable "eks_subnet_ipv6_prefixes" {
+  description = "Assigns IPv6 database subnet id based on the Amazon provided /56 prefix base 10 integer (0-256). Must be of equal length to the corresponding IPv4 subnet list"
+  type        = list(string)
+  default     = []
+}
+
 variable "assign_ipv6_address_on_creation" {
   description = "Assign IPv6 address on subnet, must be disabled to change IPv6 CIDRs. This is the IPv6 equivalent of map_public_ip_on_launch"
   type        = bool
@@ -96,6 +102,12 @@ variable "elasticache_subnet_assign_ipv6_address_on_creation" {
 
 variable "intra_subnet_assign_ipv6_address_on_creation" {
   description = "Assign IPv6 address on intra subnet, must be disabled to change IPv6 CIDRs. This is the IPv6 equivalent of map_public_ip_on_launch"
+  type        = bool
+  default     = null
+}
+
+variable "eks_subnet_assign_ipv6_address_on_creation" {
+  description = "Assign IPv6 address on eks subnet, must be disabled to change IPv6 CIDRs. This is the IPv6 equivalent of map_public_ip_on_launch"
   type        = bool
   default     = null
 }
@@ -146,6 +158,12 @@ variable "elasticache_subnet_suffix" {
   description = "Suffix to append to elasticache subnets name"
   type        = string
   default     = "elasticache"
+}
+
+variable "eks_subnet_suffix" {
+  description = "Suffix to append to EKS subnets name"
+  type        = string
+  default     = "eks"
 }
 
 variable "public_subnets" {
@@ -202,6 +220,17 @@ variable "intra_subnet_names" {
   default     = []
 }
 
+variable "eks_subnets" {
+  description = "A list of EKS subnets"
+  type        = list(string)
+  default     = []
+}
+
+variable "eks_subnet_names" {
+  description = "A list of EKS subnets"
+  type        = list(string)
+  default     = []
+}
 
 variable "create_database_subnet_route_table" {
   description = "Controls if separate route table for database should be created"
@@ -2310,6 +2339,12 @@ variable "intra_route_table_tags" {
   default     = {}
 }
 
+variable "eks_route_table_tags" {
+  description = "Additional tags for the eks route tables"
+  type        = map(string)
+  default     = {}
+}
+
 variable "database_subnet_tags" {
   description = "Additional tags for the database subnets"
   type        = map(string)
@@ -2346,6 +2381,12 @@ variable "intra_subnet_tags" {
   default     = {}
 }
 
+variable "eks_subnet_tags" {
+  description = "Additional tags for the eks subnets"
+  type        = map(string)
+  default     = {}
+}
+
 variable "public_acl_tags" {
   description = "Additional tags for the public subnets network ACL"
   type        = map(string)
@@ -2378,6 +2419,12 @@ variable "redshift_acl_tags" {
 
 variable "elasticache_acl_tags" {
   description = "Additional tags for the elasticache subnets network ACL"
+  type        = map(string)
+  default     = {}
+}
+
+variable "eks_acl_tags" {
+  description = "Additional tags for the EKS subnets network ACL"
   type        = map(string)
   default     = {}
 }
@@ -2546,6 +2593,12 @@ variable "redshift_dedicated_network_acl" {
 
 variable "elasticache_dedicated_network_acl" {
   description = "Whether to use dedicated network ACL (not default) and custom rules for elasticache subnets"
+  type        = bool
+  default     = false
+}
+
+variable "eks_dedicated_network_acl" {
+  description = "Whether to use dedicated network ACL (not default) and custom rules for EKS subnets"
   type        = bool
   default     = false
 }
@@ -2777,6 +2830,38 @@ variable "elasticache_outbound_acl_rules" {
   description = "Elasticache subnets outbound network ACL rules"
   type        = list(map(string))
 
+  default = [
+    {
+      rule_number = 100
+      rule_action = "allow"
+      from_port   = 0
+      to_port     = 0
+      protocol    = "-1"
+      cidr_block  = "0.0.0.0/0"
+    },
+  ]
+}
+
+
+
+variable "eks_inbound_acl_rules" {
+  description = "EKS subnets inbound network ACL rules"
+  type        = any
+  default = [
+    {
+      rule_number = 100
+      rule_action = "allow"
+      from_port   = 0
+      to_port     = 0
+      protocol    = "-1"
+      cidr_block  = "0.0.0.0/0"
+    },
+  ]
+}
+
+variable "eks_outbound_acl_rules" {
+  description = "EKS subnets outbound network ACL rules"
+  type        = any
   default = [
     {
       rule_number = 100
