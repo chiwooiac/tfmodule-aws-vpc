@@ -874,6 +874,14 @@ resource "aws_route_table_association" "public" {
   route_table_id = aws_route_table.public[0].id
 }
 
+resource "aws_route_table_association" "eks" {
+  count = var.create_vpc && length(var.eks_subnets) > 0 ? length(var.eks_subnets) : 0
+
+  subnet_id      = element(aws_subnet.eks.*.id, count.index)
+  route_table_id = element( aws_route_table.private.*.id, var.single_nat_gateway ? 0 : count.index, )
+}
+
+
 ####################
 # Customer Gateways
 ####################
